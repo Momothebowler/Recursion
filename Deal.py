@@ -1,76 +1,80 @@
-#in cmd do
-#cd Desktop
-#python
-#from Deal import per
-import time
+"""
+ You multiply each digit in a number
+ 317 = 3*1*7 = 21
+ 21 = 2 * 1 = 2
+ So steps taken is 2 for 317
+"""
 
+import time
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
+
+# Connect To Google Sheet
 scope = ['https://spreadsheets.google.com/feeds',
          'https://www.googleapis.com/auth/drive']
 creds = ServiceAccountCredentials.from_json_keyfile_name('client_secret.json', scope)
 client = gspread.authorize(creds)
 sheet = client.open('HelloThere').sheet1
 list_of_hashes = sheet.get_all_records()
-#print(list_of_hashes)
 
-q=1
-t=1
-v=0
+timer = 1
+v = 0  # TODO: Remove
 writes = 1
 sleep = 0
-number = 1000000
-p = time.time()
+number = 1000000  # TODO: remove this too?
 
-def per(n,z,r):
-    global q
-    global t
+
+def Recurse(n, z, r):  # Starting Number: Ending Number: Steps to check
+    global timer
+    start_time = time.time()  # time when program starts
+
     global number
-    p = time.time()
+    number = n  # Used to check when finished
 
-    number = n
-    
-    if len(str(n))==1:
-        print (n)
+    if len(str(n)) == 1:  # if only 1 digit is present (0-9)
+        print(n)
         return "DONE"
-    while number == n and n!=z:
-        pert(number,r)
-        n-=1
-    if number == n and n==z:
-        t = time.time() - p
+
+    while number == n and n != z: #While not <10 keep running
+        Algo(number, z)
+        n -= 1
+
+    if number == n and n == z:
+        timer = time.time() - start_time
         print("DONE, Took: ", t, "seconds")
 
-def pert(n,r):
+
+def Algo(n, z):
     global writes
     global v
     global number
     global sleep
-    if len(str(n))==1:
-        if v>=r:
-            print("#",number)
-            print ("Times: ", v, "done", "Writes ", writes)
-            if(writes<99):
+    if len(str(n)) == 1:
+        if v >= z:
+            print("#", number)
+            print("Times: ", v, "done", "Writes ", writes)
+            if (writes < 99):
                 writes += 1
-            sheet.append_row([str(number),str(v)])
+            sheet.append_row([str(number), str(v)])
         v = 0
         number -= 1
         return
-    
+
     digits = [int(i) for i in str(n)]
 
     results = 1
-        
+
     for j in digits:
         results *= j
 
-    v+=1
+    v += 1
 
-    if(writes >= 99):
-        while sleep<=101:
+    if (writes >= 99):
+        while sleep <= 101:
             time.sleep(1)
-            sleep+=1
-            print(sleep,end="\r")
-        if sleep>100:
+            sleep += 1
+            print(sleep, end="\r")
+        if sleep > 100:
             writes = 1
             sleep = 0
-    pert(results,r)
+    Algo(results, z)
